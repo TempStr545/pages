@@ -7,33 +7,43 @@ export default {
     // 检查请求路径是否匹配 password
     if (url.pathname === `/${password}`) {
       const content = `
-mixed-port: 7890
+mixed-port: 8878
 allow-lan: false
 bind-address: '*'
 mode: rule
 log-level: info
+ipv6: true
+unified-delay: true
+profile:
+  store-selected: true
+  store-fake-ip: true
+tun:
+  enable: true
+  stack: system
+  auto-route: true
+  auto-detect-interface: true
 external-controller: '127.0.0.1:9090'
 dns:
     enable: true
-    ipv6: false
-    default-nameserver: [223.5.5.5, 223.6.6.6]
+    ipv6: true
+    prefer-h3: true
+    listen: 0.0.0.0:53
+    default-nameserver: [223.5.5.5, 8.8.8.8]
     enhanced-mode: fake-ip
     fake-ip-range: 198.18.0.1/16
     use-hosts: true
     nameserver: ['https://dns.alidns.com/dns-query']
     fallback: ['https://dns.alidns.com/dns-query', 'https://dns.cloudflare.com/dns-query', 'tls://8.8.4.4:853']
     fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
-proxies:
-    - {name: 🇭🇰HK-Google Cloud, type: vless, server: 34.150.80.74, port: 12062, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: true}
-    - {name: 🇭🇰HK-45102-Alibaba, type: vless, server: 47.244.161.227, port: 10443, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: true}
-    - {name: 🇹🇼TW-Chunghwa Telecom, type: vless, server: 210.61.97.241, port: 81, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: true}
-    - {name: 🇯🇵JP-IT7 Networks Inc, type: vless, server: 23.106.141.25, port: 110, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: true}
-    - {name: 🇺🇸US-DMIT, type: vless, server: 136.175.176.67, port: 443, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: true}
-
-    # Domain
-    - {name: "TG Channel: @cf_no1" , type: vless, server: vless.cfno1.eu.org, port: 443, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: vless.cfno1.eu.org}}, udp: false}
-    - {name: Cloudflare-Anycast, type: vless, server: edgetunnel-free.pages.dev, port: 443, uuid: de44b044-8f90-4e18-b742-16591667ff96, alterId: 0, cipher: auto, tls: true, skip-cert-verify: false, network: ws, ws-opts: {path: '/?ed=2048', headers: {Host: edgetunnel-free.pages.dev}}, udp: false}
 proxy-providers: 
+    no1:
+        type: http
+        url: 'https://cfno1.eu.org/clash'
+        interval: 3600
+        health-check:
+            enable: true
+            url: 'https://www.gstatic.com/generate_204'
+            interval: 300
     cm:
         type: http
         url: 'https://VLESS.fxxk.dedyn.io/sub?host=v.nani1.v6.rocks&uuid=7b1c191b-a5a1-4997-95bb-25f2995d6d4b&path=/?ed=2560'
@@ -83,7 +93,56 @@ proxy-providers:
             url: 'https://www.gstatic.com/generate_204'
             interval: 300
 proxy-groups:
-    - { name: PROXY, type: select, proxies: ["TG Channel: @cf_no1", Cloudflare-Anycast, 🇭🇰HK-Google Cloud, 🇭🇰HK-45102-Alibaba, 🇹🇼TW-Chunghwa Telecom, 🇯🇵JP-IT7 Networks Inc, 🇺🇸US-DMIT], use: [cm, 3k, tian, mo, kauto, king]}
+    - { name: PROXY, type: select, proxies: [♻️ 自动选择0, ♻️ 自动选择1, ♻️ 自动选择2, ♻️ 自动选择3, ♻️ 自动选择4, ♻️ 自动选择5, ♻️ 自动选择6], use: [tian]}
+    - name: ♻️ 自动选择0
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - no1
+    - name: ♻️ 自动选择1
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - cm
+    - name: ♻️ 自动选择2
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - 3k
+    - name: ♻️ 自动选择3
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - tian
+    - name: ♻️ 自动选择4
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - mo
+    - name: ♻️ 自动选择5
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - king
+    - name: ♻️ 自动选择6
+      type: url-test
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      tolerance: 50
+      use:
+        - kauto
 rule-providers:
     reject: { type: http, behavior: domain, url: 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt', path: ./ruleset/reject.yaml, interval: 86400 }
     icloud: { type: http, behavior: domain, url: 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/icloud.txt', path: ./ruleset/icloud.yaml, interval: 86400 }
@@ -109,6 +168,7 @@ rules:
     - 'GEOIP,LAN,DIRECT'
     - 'GEOIP,CN,DIRECT,no-resolve'
     - 'MATCH,PROXY'
+
 
       `;
 
