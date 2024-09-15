@@ -1,15 +1,12 @@
-const PASSWORD = 'your_password_here'; // 替换为你的密码环境变量值
+export default {
+  async fetch(request, env) {
+    // 从环境变量中获取 password
+    const { password } = env;
+    const url = new URL(request.url);
 
-async function handleRequest(request) {
-  const url = new URL(request.url);
-  const path = url.pathname.slice(1); // 获取路径部分，不包括前导的'/'
-
-  if (path !== PASSWORD) {
-    return new Response('Unauthorized', { status: 403 });
-  }
-
-  // 可以在这里设置你要展示的内容
-  const content = '
+    // 检查请求路径是否匹配 password
+    if (url.pathname === `/${password}`) {
+      const content = `
 mixed-port: 7890
 allow-lan: false
 bind-address: '*'
@@ -112,15 +109,15 @@ rules:
     - 'GEOIP,LAN,DIRECT'
     - 'GEOIP,CN,DIRECT,no-resolve'
     - 'MATCH,PROXY'
-'; // 可以替换为你需要展示的内容
 
-  return new Response(content, {
-    headers: {
-      'Content-Type': 'text/plain;charset=UTF-8'
+      `;
+
+      return new Response(content, {
+        headers: { 'content-type': 'text/plain;charset=UTF-8' },
+      });
     }
-  });
-}
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-});
+    // 如果路径不匹配，返回 404
+    return new Response('Not Found', { status: 404 });
+  },
+};
